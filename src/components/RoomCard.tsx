@@ -2,6 +2,7 @@ import React from 'react';
 import { Text, Image, StyleSheet, Pressable } from 'react-native';
 import Animated, { FadeInDown, Layout, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { Room } from '../types/room';
+import { getRoomImageSource } from '../data/roomImages';
 
 interface RoomCardProps {
   room: Room;
@@ -31,17 +32,20 @@ export default function RoomCard({ room, index, onPress }: RoomCardProps) {
         onPress={onPress}
       >
         <Animated.View style={[styles.card, animStyle]}>
-          <Image source={{ uri: room.image }} style={styles.image} />
+          <Image 
+            source={getRoomImageSource(room.id, room.image)} 
+            style={styles.image} 
+            resizeMode="cover"
+          />
           <Animated.View style={styles.info}>
-            <Animated.View style={styles.headerRow}>
-              <Text style={styles.name}>{room.name}</Text>
-              <Text
-                style={[
-                  styles.badge,
-                  room.status === 'Available' ? styles.badgeAvailable : styles.badgeOccupied,
-                ]}
-              >
-                {room.status === 'Available' ? 'Trống' : 'Kín'}
+            <Animated.View style={styles.info}>
+              <Animated.View style={styles.headerRow}>
+                <Text style={styles.name}>{room.name}</Text>
+                {/* Hiển thị quy mô phòng thay cho status cố định */}
+                <Text style={styles.badgeSize}>{room.size}</Text>
+              </Animated.View>
+              <Text style={styles.detail}>
+                Tòa nhà: {room.building} · Sức chứa: {room.capacity} chỗ
               </Text>
             </Animated.View>
             <Text style={styles.detail}>
@@ -74,4 +78,7 @@ const styles = StyleSheet.create({
   badge: { fontSize: 11, fontWeight: '600', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 },
   badgeAvailable: { backgroundColor: '#dcfce7', color: '#16a34a' },
   badgeOccupied: { backgroundColor: '#fee2e2', color: '#dc2626' },
+  badgeSize: {fontSize: 12,
+  fontWeight: '600', paddingHorizontal: 8,paddingVertical: 2,borderRadius: 6,backgroundColor: '#e0f2fe',color: '#0369a1',
+},
 });

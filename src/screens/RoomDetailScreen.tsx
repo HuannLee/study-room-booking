@@ -100,7 +100,7 @@ export default function RoomDetailsScreen() {
         b.roomId === room.id &&
         b.date === selectedDate &&
         b.timeSlot === slot &&
-        b.userId === currentUser.id
+        b.userId === currentUser?.id 
     );
 
     // 3. Kiểm tra bản thân có lịch ở phòng khác cùng khung giờ này không
@@ -109,7 +109,7 @@ export default function RoomDetailsScreen() {
         b.roomId !== room.id &&
         b.date === selectedDate &&
         b.timeSlot === slot &&
-        b.userId === currentUser.id
+        b.userId === currentUser?.id
     );
 
     // 4. Kiểm tra người khác đã đặt nguyên phòng này chưa
@@ -118,7 +118,7 @@ export default function RoomDetailsScreen() {
         b.roomId === room.id &&
         b.date === selectedDate &&
         b.timeSlot === slot &&
-        b.userId !== currentUser.id
+        b.userId !== currentUser?.id
     );
 
     const isOccupied = Boolean(classSchedule || otherBookingHere);
@@ -146,8 +146,8 @@ export default function RoomDetailsScreen() {
       building: room.building,
       date: selectedDate,
       timeSlot: selectedSlot,
-      userId: currentUser.id,
-      userName: currentUser.name,
+      userId: currentUser?.id,
+      userName: currentUser?.name,
     });
   };
 

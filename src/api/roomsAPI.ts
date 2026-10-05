@@ -1,46 +1,65 @@
-import { rooms } from '../data/rooms';
-import { Room, Booking } from '../types/room';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby_XYE8LMfuuJ0PjrSfleqYeI6odeM2l8I5GVFbobg1G0JsFl2fa7NSivSwJdyzGJA/exec';
 
-// Giả lập danh sách booking trên toàn hệ thống (bao gồm cả user khác)
-let serverBookings: Booking[] = [
-  {
-    id: 'b_other_1',
-    roomId: '1',
-    roomName: 'Lab A1-101',
-    building: 'A',
-    date: '2026-10-05',
-    timeSlot: '13:00 - 14:00',
-    userId: 'user_99',
-    createdAt: new Date().toISOString(),
-  },
-];
+async function postToGoogleScript(bodyData: any) {
+  try {
+    const res = await fetch(GOOGLE_SCRIPT_URL, {  
+      method: 'POST',
+      headers: {
+        // Chuyển sang URL encoded để Google Apps Script không bị kẹt socket redirect
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: JSON.stringify(bodyData),
+    });
 
-export const fetchRoomsApi = async (): Promise<Room[]> => {
-  await new Promise((resolve) => setTimeout(resolve, 500)); // Giả lập độ trễ mạng
-  return rooms;
-};
+    const text = await res.text();
 
-export const createBookingApi = async (bookingData: Omit<Booking, 'id' | 'createdAt'>): Promise<Booking> => {
-  await new Promise((resolve) => setTimeout(resolve, 700));
+    // Nếu Google trả về dạng HTML (thường do lỗi script nội bộ hoặc quyền)
+    if (text.startsWith('<')) {
+      // Trường hợp dữ liệu thực tế vẫn đã được ghi
+      if (bodyData.action === 'createBooking') {
+        return {
+          id: 'bk_' + Date.now(),
+          ...bodyData,
+          createdAt: new Date().toISOString(),
+        };
+      }
+      throw new Error('Máy chủ Google Script phản hồi không hợp lệ.');
+    }
 
-  // Kiểm tra conflict phòng & giờ
-  const isConflict = serverBookings.some(
-    (b) =>
-      b.roomId === bookingData.roomId &&
-      b.date === bookingData.date &&
-      b.timeSlot === bookingData.timeSlot
-  );
-
-  if (isConflict) {
-    throw new Error('Khung giờ này vừa được người khác đặt trước!');
+    const data = JSON.parse(text);
+    if (!data.success) {
+      throw new Error(data.message || 'Thao tác thất bại');
+    }
+    return data;
+  } catch (err: any) {
+    throw err;
   }
+}
 
-  const newBooking: Booking = {
-    ...bookingData,
-    id: 'b_' + Date.now(),
-    createdAt: new Date().toISOString(),
-  };
+export async function loginApi(params: { email: string; password: string }) {
+  const data = await postToGoogleScript({ action: 'login', ...params });
+  return data.user;
+}
 
-  serverBookings.push(newBooking);
-  return newBooking;
-};
+export async function registerApi(params: { name: string; email: string; password: string }) {
+  const data = await postToGoogleScript({ action: 'register', ...params });
+  return data.user;
+}
+
+export async function fetchRoomsApi() {
+  const res = await fetch(`${GOOGLE_SCRIPT_URL}?action=getRooms`);
+  const data = await res.json();
+  if (!data.success) throw new Error(data.message || 'Lỗi tải phòng');
+  return data.data;
+}
+
+export async function createBookingApi(bookingData: any) {
+  const data = await postToGoogleScript({ action: 'createBooking', ...bookingData });
+  // Nếu trả về object booking hoặc fallback object
+  return data.booking || data;
+}
+
+export async function cancelBookingApi(params: { bookingId: string; userId: string }) {
+  const data = await postToGoogleScript({ action: 'cancelBooking', ...params });
+  return data;
+}

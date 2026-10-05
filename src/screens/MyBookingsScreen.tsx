@@ -67,7 +67,7 @@ export default function MyBookingsScreen() {
 
   const { upcomingBookings, historyBookings } = useMemo(() => {
     // Chỉ lấy lịch của user hiện tại
-    const userBookings = bookings.filter((b) => b.userId === currentUser.id);
+    const userBookings = bookings.filter((b) => b.userId === currentUser?.id);
 
     const upcoming: Booking[] = [];
     const history: Booking[] = [];

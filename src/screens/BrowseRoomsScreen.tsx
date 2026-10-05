@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { Room } from '../types/room';
 import {
   View,
   Text,
@@ -38,7 +39,7 @@ export default function BrowseRoomsScreen() {
   const sizes: ('All' | RoomSize)[] = ['All', 'Small', 'Medium', 'Large'];
 
   const filteredRooms = useMemo(() => {
-    return rooms.filter((room) => {
+    return rooms.filter((room: Room) => {
       const matchSearch = room.name.toLowerCase().includes(filters.search.toLowerCase());
       const matchSize = filters.size === 'All' || room.size === filters.size;
       const matchBuilding = filters.building === 'All' || room.building === filters.building;
