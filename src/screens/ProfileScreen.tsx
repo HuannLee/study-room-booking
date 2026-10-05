@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppStore } from '../store/useAppStore';
 
@@ -9,10 +9,17 @@ export default function ProfileScreen() {
   const myBookingsCount = bookings.filter((b) => b.userId === currentUser?.id).length;
 
   const handleLogout = () => {
-    Alert.alert('Đăng xuất', 'Bạn có chắc chắn muốn thoát khỏi tài khoản?', [
-      { text: 'Hủy' },
-      { text: 'Đăng xuất', style: 'destructive', onPress: logout },
-    ]);
+    if (Platform.OS === 'web') {
+      const confirmed = window.confirm('Bạn có chắc chắn muốn thoát khỏi tài khoản?');
+      if (confirmed) {
+        logout();
+      }
+    } else {
+      Alert.alert('Đăng xuất', 'Bạn có chắc chắn muốn thoát khỏi tài khoản?', [
+        { text: 'Hủy', style: 'cancel' },
+        { text: 'Đăng xuất', style: 'destructive', onPress: logout },
+      ]);
+    }
   };
 
   return (

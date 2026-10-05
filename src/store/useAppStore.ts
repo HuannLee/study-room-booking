@@ -54,6 +54,8 @@ export const useAppStore = create<AppState>()(
       name: 'vku-booking-storage',
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({ currentUser: state.currentUser, bookings: state.bookings }),
-    }
+      
+    },
+    
   )
 );
