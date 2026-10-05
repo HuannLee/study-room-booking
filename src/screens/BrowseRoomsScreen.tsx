@@ -138,23 +138,30 @@ export default function BrowseRoomsScreen() {
 
       {/* Room FlatList */}
       <FlatList
-        data={filteredRooms}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <RoomCard
-            room={item}
-            onPress={() => navigation.navigate('RoomDetail', { room: item })}
-          />
-        )}
-        contentContainerStyle={styles.listContent}
-        refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} colors={['#2563eb']} />}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyTitle}>Không tìm thấy phòng phù hợp</Text>
-            <Text style={styles.emptySubtitle}>Thử tìm từ khóa khác hoặc bấm nút 'Xóa lọc' bên trên.</Text>
-          </View>
-        }
-      />
+  data={filteredRooms}
+  keyExtractor={(item) => item.id}
+  renderItem={({ item, index }) => (
+    <RoomCard
+      room={item}
+      index={index}
+      onPress={() => navigation.navigate('RoomDetails', { room: item })}
+    />
+  )}
+  contentContainerStyle={styles.listContent}
+  refreshControl={
+    <RefreshControl
+      refreshing={isRefetching}
+      onRefresh={refetch}
+      colors={['#2563eb']}
+    />
+  }
+  ListEmptyComponent={
+    <View style={styles.emptyContainer}>
+      <Text style={styles.emptyTitle}>Không tìm thấy phòng phù hợp</Text>
+      <Text style={styles.emptySubtitle}>Thử tìm từ khóa khác hoặc bấm nút 'Xóa lọc' bên trên.</Text>
+    </View>
+  }
+/>
     </View>
   );
 }

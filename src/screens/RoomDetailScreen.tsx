@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useMutation } from '@tanstack/react-query';
 
 import { RootStackParamList } from '../types/room';
 import { useAppStore } from '../store/useAppStore';
 import { createBookingApi } from '../api/roomsAPI';
 
-type RoomDetailRouteProp = RouteProp<RootStackParamList, 'RoomDetail'>;
+type RoomDetailsRouteProp = RouteProp<RootStackParamList, 'RoomDetails'>;
 
 const AVAILABLE_SLOTS = [
   '08:00 - 09:00',
@@ -22,33 +23,27 @@ const AVAILABLE_SLOTS = [
 
 const DATES = ['2026-10-05', '2026-10-06', '2026-10-07'];
 
-export default function RoomDetailScreen() {
-  const route = useRoute<RoomDetailRouteProp>();
-  const navigation = useNavigation<any>();
+export default function RoomDetailsScreen() {
+  const route = useRoute<RoomDetailsRouteProp>();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { room } = route.params;
 
   const { currentUser, bookings, addBooking } = useAppStore();
   const [selectedDate, setSelectedDate] = useState<string>(DATES[0]);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
 
-  // TanStack Query Mutation: Gửi request đặt phòng lên API giả lập
   const bookingMutation = useMutation({
     mutationFn: createBookingApi,
     onSuccess: (newBooking) => {
       addBooking(newBooking);
-      Alert.alert('Thành công', `Bạn đã đặt ${room.name} vào ${newBooking.timeSlot}!`, [
-        {
-          text: 'Xem phòng đã đặt',
-          onPress: () => navigation.navigate('MainTabs', { screen: 'My Bookings' }),
-        },
-      ]);
+      // Chuyển sang màn hình Modal xác nhận theo đúng kiến trúc slide 8 & 9
+      navigation.navigate('BookingConfirmation', { bookingId: newBooking.id });
     },
     onError: (error: any) => {
       Alert.alert('Đặt phòng thất bại', error.message || 'Có lỗi xảy ra.');
     },
   });
 
-  // Tìm các slot của phòng này đã có trong store local
   const bookedSlots = bookings
     .filter((b) => b.roomId === room.id && b.date === selectedDate)
     .map((b) => b.timeSlot);

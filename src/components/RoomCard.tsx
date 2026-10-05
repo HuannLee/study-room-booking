@@ -1,39 +1,77 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, Pressable } from 'react-native';
+import { Text, Image, StyleSheet, Pressable } from 'react-native';
+import Animated, { FadeInDown, Layout, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { Room } from '../types/room';
 
 interface RoomCardProps {
   room: Room;
-  onPress?: () => void;
+  index: number;
+  onPress: () => void;
 }
 
-export default function RoomCard({ room, onPress }: RoomCardProps) {
+export default function RoomCard({ room, index, onPress }: RoomCardProps) {
+  const scale = useSharedValue(1);
+
+  const animStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
   return (
-    <Pressable style={styles.card} onPress={onPress}>
-      <Image source={{ uri: room.image }} style={styles.image} />
-      <View style={styles.content}>
-        <View style={styles.header}>
-          <Text style={styles.name}>{room.name}</Text>
-          <View style={[styles.badge, room.status === 'Available' ? styles.badgeAvailable : styles.badgeOccupied]}>
-            <Text style={styles.badgeText}>{room.status}</Text>
-          </View>
-        </View>
-        <Text style={styles.meta}>Khu vực: Tòa {room.building}</Text>
-        <Text style={styles.meta}>{room.capacity} chỗ · Quy mô: {room.size}</Text>
-      </View>
-    </Pressable>
+    <Animated.View
+      entering={FadeInDown.delay(index * 60).springify()}
+      layout={Layout.springify()}
+    >
+      <Pressable
+        onPressIn={() => {
+          scale.value = withSpring(0.97);
+        }}
+        onPressOut={() => {
+          scale.value = withSpring(1);
+        }}
+        onPress={onPress}
+      >
+        <Animated.View style={[styles.card, animStyle]}>
+          <Image source={{ uri: room.image }} style={styles.image} />
+          <Animated.View style={styles.info}>
+            <Animated.View style={styles.headerRow}>
+              <Text style={styles.name}>{room.name}</Text>
+              <Text
+                style={[
+                  styles.badge,
+                  room.status === 'Available' ? styles.badgeAvailable : styles.badgeOccupied,
+                ]}
+              >
+                {room.status === 'Available' ? 'Trống' : 'Kín'}
+              </Text>
+            </Animated.View>
+            <Text style={styles.detail}>
+              Tòa nhà: {room.building} · Sức chứa: {room.capacity} ({room.size})
+            </Text>
+          </Animated.View>
+        </Animated.View>
+      </Pressable>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: { backgroundColor: '#fff', borderRadius: 12, marginBottom: 14, overflow: 'hidden', elevation: 2 },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    marginBottom: 14,
+    overflow: 'hidden',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+  },
   image: { width: '100%', height: 140 },
-  content: { padding: 14 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
-  name: { fontSize: 17, fontWeight: '700', color: '#1e293b', flex: 1 },
-  badge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12 },
-  badgeAvailable: { backgroundColor: '#dcfce7' },
-  badgeOccupied: { backgroundColor: '#fee2e2' },
-  badgeText: { fontSize: 12, fontWeight: '600', color: '#1e293b' },
-  meta: { fontSize: 13, color: '#64748b', marginTop: 3 },
+  info: { padding: 12 },
+  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  name: { fontSize: 16, fontWeight: '700', color: '#0f172a' },
+  detail: { fontSize: 13, color: '#64748b', marginTop: 4 },
+  badge: { fontSize: 11, fontWeight: '600', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 },
+  badgeAvailable: { backgroundColor: '#dcfce7', color: '#16a34a' },
+  badgeOccupied: { backgroundColor: '#fee2e2', color: '#dc2626' },
 });

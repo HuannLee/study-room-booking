@@ -17,13 +17,20 @@ export interface Booking {
   roomId: string;
   roomName: string;
   building: string;
-  date: string; // Định dạng YYYY-MM-DD
-  timeSlot: string; // Ví dụ: "09:00 - 10:00"
+  date: string;
+  timeSlot: string;
   userId: string;
   createdAt: string;
 }
 
 export type RootStackParamList = {
-  MainTabs: undefined;
-  RoomDetail: { room: Room };
+  MainTabs: { screen?: keyof TabParamList } | undefined;
+  RoomDetails: { room: Room };
+  BookingConfirmation: { bookingId: string };
+};
+
+export type TabParamList = {
+  BrowseRooms: undefined;
+  MyBookings: undefined;
+  Profile: undefined;
 };

@@ -1,66 +1,57 @@
 import React from 'react';
+import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Ionicons } from '@expo/vector-icons';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-import BrowseRoomsScreen from './src/screens/BrowseRoomsScreen';
-import MyBookingsScreen from './src/screens/MyBookingsScreen';
-import ProfileScreen from './src/screens/ProfileScreen';
-import RoomDetailScreen from './src/screens/RoomDetailScreen';
 import { RootStackParamList } from './src/types/room';
+import BottomTabNavigator from './src/navigation/BottomTabNavigator';
+import RoomDetailsScreen from './src/screens/RoomDetailScreen';
+import BookingConfirmationScreen from './src/screens/BookingConfirmationScreen';
 
-const queryClient = new QueryClient();
-const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator<RootStackParamList>();
-
-function MainTabs() {
-  return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        headerTitleAlign: 'center',
-        tabBarActiveTintColor: '#2563eb',
-        tabBarInactiveTintColor: '#94a3b8',
-        tabBarStyle: { height: 60, paddingBottom: 8, paddingTop: 6 },
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName: keyof typeof Ionicons.glyphMap = 'cube';
-
-          if (route.name === 'Browse Rooms') {
-            iconName = focused ? 'search' : 'search-outline';
-          } else if (route.name === 'My Bookings') {
-            iconName = focused ? 'calendar' : 'calendar-outline';
-          } else if (route.name === 'Profile') {
-            iconName = focused ? 'person' : 'person-outline';
-          }
-
-          return <Ionicons name={iconName} size={size} color={color} />;
-        },
-      })}
-    >
-      <Tab.Screen name="Browse Rooms" component={BrowseRoomsScreen} options={{ title: 'Khám phá phòng' }} />
-      <Tab.Screen name="My Bookings" component={MyBookingsScreen} options={{ title: 'Lịch đặt phòng' }} />
-      <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: 'Tài khoản' }} />
-    </Tab.Navigator>
-  );
-}
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,
+      retry: 2,
+    },
+  },
+});
 
 export default function App() {
   return (
-    <SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>
         <NavigationContainer>
-          <Stack.Navigator>
-            <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
+          <Stack.Navigator
+            initialRouteName="MainTabs"
+            screenOptions={{
+              headerStyle: { backgroundColor: '#1E3A5F' },
+              headerTintColor: '#fff',
+              animation: 'slide_from_right',
+            }}
+          >
             <Stack.Screen
-              name="RoomDetail"
-              component={RoomDetailScreen}
-              options={{ title: 'Chi tiết & Đặt phòng', headerBackTitle: 'Quay lại' }}
+              name="MainTabs"
+              component={BottomTabNavigator}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="RoomDetails"
+              component={RoomDetailsScreen}
+              options={({ route }) => ({ title: route.params.room.name })}
+            />
+            <Stack.Screen
+              name="BookingConfirmation"
+              component={BookingConfirmationScreen}
+              options={{ presentation: 'modal', headerShown: false }}
             />
           </Stack.Navigator>
         </NavigationContainer>
+        <StatusBar style="light" />
       </QueryClientProvider>
-    </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
