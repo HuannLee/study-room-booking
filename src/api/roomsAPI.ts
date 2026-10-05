@@ -63,3 +63,10 @@ export async function cancelBookingApi(params: { bookingId: string; userId: stri
   const data = await postToGoogleScript({ action: 'cancelBooking', ...params });
   return data;
 }
+
+export async function fetchSchedulesApi() {
+  const res = await fetch(`${GOOGLE_SCRIPT_URL}?action=getSchedules`);
+  const data = await res.json();
+  if (!data.success) throw new Error(data.message || 'Lỗi tải lịch học');
+  return data.data;
+}

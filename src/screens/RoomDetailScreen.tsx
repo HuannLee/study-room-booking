@@ -16,6 +16,9 @@ import { useMutation } from '@tanstack/react-query';
 import { RootStackParamList } from '../types/room';
 import { useAppStore } from '../store/useAppStore';
 import { createBookingApi } from '../api/roomsAPI';
+import { getRoomImageSource } from '../data/roomImages';
+import { useQuery } from '@tanstack/react-query';
+import { fetchSchedulesApi } from '../api/roomsAPI';
 
 type RoomDetailsRouteProp = RouteProp<RootStackParamList, 'RoomDetails'>;
 
@@ -60,6 +63,11 @@ export default function RoomDetailsScreen() {
   const [selectedDate, setSelectedDate] = useState<string>(upcomingDates[0]);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
 
+  const { data: allSchedules = [] } = useQuery({
+    queryKey: ['schedules'],
+    queryFn: fetchSchedulesApi,
+  });
+
   const bookingMutation = useMutation({
     mutationFn: createBookingApi,
     onSuccess: (newBooking) => {
@@ -90,9 +98,23 @@ export default function RoomDetailsScreen() {
     const passed = isTimePassed(slot);
 
     // 1. Kiểm tra lịch học chính khóa
-    const classSchedule = room.classSchedules?.find(
-      (cs) => cs.date === selectedDate && cs.timeSlot === slot
-    );
+    const classSchedule = allSchedules.find((cs: any) => {
+      if (String(cs.roomId) !== String(room.id) || cs.timeSlot !== slot) {
+        return false;
+      }
+
+      let scheduleDateStr = cs.date;
+      // Nếu date là dạng chuỗi dài "Fri Oct 30 2026...", chuyển về "2026-10-30"
+      if (cs.date && cs.date.includes('GMT')) {
+        const d = new Date(cs.date);
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        scheduleDateStr = `${year}-${month}-${day}`;
+      }
+
+      return scheduleDateStr === selectedDate;
+    });
 
     // 2. Kiểm tra bản thân đã đặt phòng này chưa
     const myBookingHere = bookings.find(
@@ -150,10 +172,15 @@ export default function RoomDetailsScreen() {
       userName: currentUser?.name,
     });
   };
+  
 
   return (
     <ScrollView style={styles.container}>
-      <Image source={{ uri: room.image }} style={styles.image} />
+      <Image 
+        source={getRoomImageSource(room.id, room.image)} 
+        style={styles.image} 
+        resizeMode="cover"
+      />
       <View style={styles.content}>
         <Text style={styles.title}>{room.name}</Text>
         <Text style={styles.subtitle}>
