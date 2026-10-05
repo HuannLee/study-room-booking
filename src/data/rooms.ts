@@ -1,0 +1,25 @@
+import { Room } from '../types/room';
+
+export const rooms: Room[] = [
+  { id: '1', name: 'Lab A1-101', building: 'A', capacity: 20, size: 'Small', status: 'Available', image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72' },
+  { id: '2', name: 'Lab A2-201', building: 'A', capacity: 40, size: 'Large', status: 'Occupied', image: 'https://images.unsplash.com/photo-1497366811353-6870744d04b2' },
+  { id: '3', name: 'Study Room B1', building: 'B', capacity: 10, size: 'Small', status: 'Available', image: 'https://images.unsplash.com/photo-1524758631624-e2822e304c36' },
+  { id: '4', name: 'Library Room B2', building: 'B', capacity: 25, size: 'Medium', status: 'Occupied', image: 'https://images.unsplash.com/photo-1507842217343-583bb7270b66' },
+  { id: '5', name: 'Study Room C1', building: 'C', capacity: 15, size: 'Small', status: 'Available', image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72' },
+  { id: '6', name: 'Lab C2-301', building: 'C', capacity: 50, size: 'Large', status: 'Available', image: 'https://images.unsplash.com/photo-1497366811353-6870744d04b2' },
+  { id: '7', name: 'Study Room D1', building: 'D', capacity: 20, size: 'Medium', status: 'Occupied', image: 'https://images.unsplash.com/photo-1524758631624-e2822e304c36' },
+  { id: '8', name: 'Lab D2-101', building: 'D', capacity: 35, size: 'Large', status: 'Available', image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72' },
+  { id: '9', name: 'Seminar Room A3-102', building: 'A', capacity: 45, size: 'Large', status: 'Available', image: 'https://images.unsplash.com/photo-1517502884422-41eaead166d4' },
+  { id: '10', name: 'Meeting Room B3-205', building: 'B', capacity: 8, size: 'Small', status: 'Available', image: 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678' },
+  { id: '11', name: 'Tech Hub C1-105', building: 'C', capacity: 30, size: 'Medium', status: 'Occupied', image: 'https://images.unsplash.com/photo-1497215842964-222b430dc094' },
+  { id: '12', name: 'Brainstorm Room D3-402', building: 'D', capacity: 6, size: 'Small', status: 'Available', image: 'https://images.unsplash.com/photo-1527192491265-7e15c55b1ed2' },
+  { id: '13', name: 'Lab AI & Data A2-305', building: 'A', capacity: 35, size: 'Large', status: 'Available', image: 'https://images.unsplash.com/photo-1497366216548-37526070297c' },
+  { id: '14', name: 'Silent Study B2-108', building: 'B', capacity: 12, size: 'Small', status: 'Occupied', image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72' },
+  { id: '15', name: 'Collaboration C3-201', building: 'C', capacity: 22, size: 'Medium', status: 'Available', image: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d' },
+  { id: '16', name: 'Conference D1-501', building: 'D', capacity: 60, size: 'Large', status: 'Occupied', image: 'https://images.unsplash.com/photo-1431540015161-0bf866a2d407' },
+  { id: '17', name: 'Design Studio A1-204', building: 'A', capacity: 18, size: 'Medium', status: 'Available', image: 'https://images.unsplash.com/photo-1517502884422-41eaead166d4' },
+  { id: '18', name: 'Discussion Pod B1-002', building: 'B', capacity: 4, size: 'Small', status: 'Available', image: 'https://images.unsplash.com/photo-1524758631624-e2822e304c36' },
+  { id: '19', name: 'Networking Lab C2-101', building: 'C', capacity: 32, size: 'Large', status: 'Occupied', image: 'https://images.unsplash.com/photo-1497366811353-6870744d04b2' },
+  { id: '20', name: 'Quiet Study D2-202', building: 'D', capacity: 16, size: 'Medium', status: 'Available', image: 'https://images.unsplash.com/photo-1507842217343-583bb7270b66' },
+  { id: '21', name: 'Workshop Room A4-01', building: 'A', capacity: 55, size: 'Large', status: 'Available', image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72' },
+];
