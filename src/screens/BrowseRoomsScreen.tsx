@@ -14,14 +14,14 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useQuery } from '@tanstack/react-query';
 
-import { RoomStatus, RoomSize, RootStackParamList } from '../types/room';
+import { RoomSize, RootStackParamList } from '../types/room';
 import RoomCard from '../components/RoomCard';
 import { useAppStore } from '../store/useAppStore';
 import { fetchRoomsApi } from '../api/roomsAPI';
 
 export default function BrowseRoomsScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { filters, setSearch, setStatusFilter, setSizeFilter, setBuildingFilter, resetFilters } = useAppStore();
+  const { filters, setSearch, setSizeFilter, setBuildingFilter, resetFilters } = useAppStore();
 
   const {
     data: rooms = [],
@@ -36,25 +36,23 @@ export default function BrowseRoomsScreen() {
 
   const buildings = ['All', 'A', 'B', 'C', 'D'];
   const sizes: ('All' | RoomSize)[] = ['All', 'Small', 'Medium', 'Large'];
-  const statuses: ('All' | RoomStatus)[] = ['All', 'Available', 'Occupied'];
 
   const filteredRooms = useMemo(() => {
     return rooms.filter((room) => {
       const matchSearch = room.name.toLowerCase().includes(filters.search.toLowerCase());
-      const matchStatus = filters.status === 'All' || room.status === filters.status;
       const matchSize = filters.size === 'All' || room.size === filters.size;
       const matchBuilding = filters.building === 'All' || room.building === filters.building;
-      return matchSearch && matchStatus && matchSize && matchBuilding;
+      return matchSearch && matchSize && matchBuilding;
     });
   }, [rooms, filters]);
 
-  const isFiltering = filters.search !== '' || filters.status !== 'All' || filters.size !== 'All' || filters.building !== 'All';
+  const isFiltering = filters.search !== '' || filters.size !== 'All' || filters.building !== 'All';
 
   if (isLoading) {
     return (
       <View style={styles.centerContainer}>
         <ActivityIndicator size="large" color="#2563eb" />
-        <Text style={styles.loadingText}>Đang tải danh sách 20+ phòng học...</Text>
+        <Text style={styles.loadingText}>Đang tải danh sách phòng học...</Text>
       </View>
     );
   }
@@ -72,7 +70,7 @@ export default function BrowseRoomsScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Search Input Bar */}
+      {/* Ô tìm kiếm */}
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
@@ -80,7 +78,6 @@ export default function BrowseRoomsScreen() {
           placeholderTextColor="#94a3b8"
           value={filters.search}
           onChangeText={setSearch}
-          clearButtonMode="while-editing"
         />
         {isFiltering && (
           <TouchableOpacity onPress={resetFilters} style={styles.clearBtn}>
@@ -89,34 +86,8 @@ export default function BrowseRoomsScreen() {
         )}
       </View>
 
-      {/* Filter Sections */}
+      {/* Bộ lọc Tòa nhà và Quy mô */}
       <View style={styles.filterSection}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipRow}>
-          <Text style={styles.filterLabel}>Trạng thái:</Text>
-          {statuses.map((st) => (
-            <TouchableOpacity
-              key={st}
-              style={[styles.chip, filters.status === st && styles.chipActive]}
-              onPress={() => setStatusFilter(st)}
-            >
-              <Text style={filters.status === st ? styles.chipTextActive : styles.chipText}>{st}</Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipRow}>
-          <Text style={styles.filterLabel}>Kích thước:</Text>
-          {sizes.map((sz) => (
-            <TouchableOpacity
-              key={sz}
-              style={[styles.chip, filters.size === sz && styles.chipActive]}
-              onPress={() => setSizeFilter(sz)}
-            >
-              <Text style={filters.size === sz ? styles.chipTextActive : styles.chipText}>{sz}</Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipRow}>
           <Text style={styles.filterLabel}>Tòa nhà:</Text>
           {buildings.map((b) => (
@@ -125,43 +96,53 @@ export default function BrowseRoomsScreen() {
               style={[styles.chip, filters.building === b && styles.chipActive]}
               onPress={() => setBuildingFilter(b)}
             >
-              <Text style={filters.building === b ? styles.chipTextActive : styles.chipText}>{b}</Text>
+              <Text style={filters.building === b ? styles.chipTextActive : styles.chipText}>
+                {b === 'All' ? 'Tất cả' : `Tòa ${b}`}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipRow}>
+          <Text style={styles.filterLabel}>Quy mô:</Text>
+          {sizes.map((sz) => (
+            <TouchableOpacity
+              key={sz}
+              style={[styles.chip, filters.size === sz && styles.chipActive]}
+              onPress={() => setSizeFilter(sz)}
+            >
+              <Text style={filters.size === sz ? styles.chipTextActive : styles.chipText}>
+                {sz === 'All' ? 'Tất cả' : sz}
+              </Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
       </View>
 
-      {/* Counter kết quả */}
       <View style={styles.resultInfoRow}>
         <Text style={styles.resultInfoText}>Hiển thị {filteredRooms.length} phòng</Text>
       </View>
 
-      {/* Room FlatList */}
+      {/* Danh sách phòng */}
       <FlatList
-  data={filteredRooms}
-  keyExtractor={(item) => item.id}
-  renderItem={({ item, index }) => (
-    <RoomCard
-      room={item}
-      index={index}
-      onPress={() => navigation.navigate('RoomDetails', { room: item })}
-    />
-  )}
-  contentContainerStyle={styles.listContent}
-  refreshControl={
-    <RefreshControl
-      refreshing={isRefetching}
-      onRefresh={refetch}
-      colors={['#2563eb']}
-    />
-  }
-  ListEmptyComponent={
-    <View style={styles.emptyContainer}>
-      <Text style={styles.emptyTitle}>Không tìm thấy phòng phù hợp</Text>
-      <Text style={styles.emptySubtitle}>Thử tìm từ khóa khác hoặc bấm nút 'Xóa lọc' bên trên.</Text>
-    </View>
-  }
-/>
+        data={filteredRooms}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item, index }) => (
+          <RoomCard
+            room={item}
+            index={index}
+            onPress={() => navigation.navigate('RoomDetails', { room: item })}
+          />
+        )}
+        contentContainerStyle={styles.listContent}
+        refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} colors={['#2563eb']} />}
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyTitle}>Không tìm thấy phòng phù hợp</Text>
+            <Text style={styles.emptySubtitle}>Thử thay đổi từ khóa hoặc bộ lọc quy mô phòng.</Text>
+          </View>
+        }
+      />
     </View>
   );
 }
@@ -179,7 +160,7 @@ const styles = StyleSheet.create({
   clearBtnText: { color: '#ef4444', fontSize: 13, fontWeight: '700' },
   filterSection: { paddingVertical: 6, borderBottomWidth: 1, borderColor: '#e2e8f0', backgroundColor: '#fff' },
   chipRow: { flexDirection: 'row', paddingHorizontal: 16, marginVertical: 3 },
-  filterLabel: { fontSize: 12, fontWeight: '700', color: '#64748b', alignSelf: 'center', marginRight: 8, minWidth: 68 },
+  filterLabel: { fontSize: 12, fontWeight: '700', color: '#64748b', alignSelf: 'center', marginRight: 8, minWidth: 60 },
   chip: { paddingVertical: 4, paddingHorizontal: 12, borderRadius: 14, backgroundColor: '#f1f5f9', marginRight: 6, borderWidth: 1, borderColor: '#e2e8f0' },
   chipActive: { backgroundColor: '#2563eb', borderColor: '#2563eb' },
   chipText: { fontSize: 12, color: '#334155' },

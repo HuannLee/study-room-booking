@@ -1,5 +1,10 @@
-export type RoomStatus = 'Available' | 'Occupied';
 export type RoomSize = 'Small' | 'Medium' | 'Large';
+
+export interface ClassScheduleItem {
+  date: string;     // Định dạng: YYYY-MM-DD
+  timeSlot: string; // Khung giờ: '07:30 - 08:30'
+  className: string;// Tên lớp / môn: '21IT1 - Mạng máy tính'
+}
 
 export interface Room {
   id: string;
@@ -7,9 +12,9 @@ export interface Room {
   building: string;
   capacity: number;
   size: RoomSize;
-  status: RoomStatus;
   image: string;
   description?: string;
+  classSchedules?: ClassScheduleItem[];
 }
 
 export interface Booking {
@@ -20,6 +25,7 @@ export interface Booking {
   date: string;
   timeSlot: string;
   userId: string;
+  userName: string;
   createdAt: string;
 }
 
